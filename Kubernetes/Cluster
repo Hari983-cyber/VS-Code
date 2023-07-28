@@ -1,0 +1,85 @@
+# For installing K8s in Linux
+sudo apt-get update
+1. sudo apt install python3-pip (Install Python3-Pip)
+2. pip3 install awscli --upgrade --user (use Sudo if not run in the first place)
+3. sudo rm /usr/local/bin/kubectl (removing the Kubectl)
+4. https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/ (link to download Kubectl consists of 3 steps)
+5. sudo apt install awscli (Before running aws eks update command check awscli version. If aws cLi is not present install it with the mentioned command)
+
+
+# Creation of  Simple cluster yaml file with EKSCTL
+
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: demo-c42-tbd
+  region: us-east-1
+  version: "1.27"
+
+nodeGroups:
+  - name: ng-1
+    instanceType: t2.small
+    desiredCapacity: 2
+    volumeSize: 20
+availabilityZones: ['us-east-1a', 'us-east-1b']
+
+
+
+
+
+
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: demo-c42-tbd-2
+  region: us-east-1
+  version: "1.27"
+
+nodeGroups:
+  - name: ng-1
+    instanceType: t2.small
+    desiredCapacity: 1
+    volumeSize: 20
+  - name: ng-2
+    minSize: 2
+    maxSize: 2
+    instancesDistribution:
+      maxPrice: 0.05
+      instanceTypes: ["t3.small", "t2.small"] # At least one instance type should be specified
+      onDemandBaseCapacity: 0
+      onDemandPercentageAboveBaseCapacity: 0
+      spotAllocationStrategy: "capacity-optimized"
+
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vote
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: vote
+  template:
+    metadata:
+      name: vote
+      labels:
+        app: vote
+    spec:
+      containers:
+      - name: vote
+        image: dipesh017/demo:vote
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vote
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: vote

@@ -1,0 +1,34 @@
+# The inventory File
+
+[right]
+172.31.19.109 ansible_ssh_user=ubuntu ansible_ssh_private_key_file="/home/ubuntu/upgrad.pem"
+172.31.20.136 ansible_ssh_user=ubuntu ansible_ssh_private_key_file="/home/ubuntu/upgrad.pem"
+
+cmd to ping the inventory : ansible all -m ping -i inventory
+
+
+#The adhoc command (Suppose i want to copy something in the slave machines)
+create a file eg. main.sh 
+cmd to copy the file into slave : ansible all -m copy -a "src=main.sh dest=/home/ubuntu/main.sh -i inventory
+cmd to execute playbook file: ansible-playbook playbook.yaml -i inventory
+
+
+
+# For dynamic inventory in ansible we have to follow this method:
+
+install boto3
+ec2 read only iam role
+
+
+sudo vim /etc/ansible/ansible.cfg    (Write this in the last second line)
+
+[defaults]
+host_key_checking = False
+ansible_ssh_user = ubuntu
+remote_user = ubuntu
+private_key_file=/home/ubuntu/up-demo.pem
+
+In master machine : ~$ vim inventory_aws_ec2.yml
+plugin: amazon.aws.aws_ec2
+regions:
+  - us-east-1
